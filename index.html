@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>炫彩小球</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            background-color: black;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas></canvas>
+    <script>
+        var mycanvas = document.getElementsByTagName('canvas')[0];
+        var ctx = mycanvas.getContext('2d');
+        //设置画布满屏
+        mycanvas.width = document.documentElement.clientWidth;
+        mycanvas.height = document.documentElement.clientHeight;
+        //小球类
+        function Ball(x, y) {
+            this.x = x;      //圆心坐标
+            this.y = y;       //圆心坐标
+            this.r = 30;
+            this.color = "rgba(" + parseInt(Math.random() * 256) + "," + parseInt(Math.random() * 256) + "," + parseInt(Math.random() * 256) + ",0.5)";
+            this.dx = parseInt(Math.random() * 8 - 4);   //x的变化值
+            this.dy = parseInt(Math.random() * 8 - 4);    //y的变化值
+            ballsArr.push(this);   //让自己进入数组
+        }
+        Ball.prototype.render = function () {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.fillStyle = this.color;
+            ctx.fill();
+        }
+        Ball.prototype.updata = function () {
+            this.x += this.dx;
+            this.y += this.dy;
+            this.r--;
+            //如果半径为0此时从数组中删除自己
+            if (this.r < 0) {
+                this.godie();
+            }
+        }
+        Ball.prototype.godie = function () {
+            for (var i = 0; i < ballsArr.length; i++) {
+                if (ballsArr[i] === this) {
+                    ballsArr.splice(i, 1);
+                }
+            }
+        }
+        var ballsArr = [];
+        //监听
+        mycanvas.onmousemove = function (event) {
+            new Ball(event.clientX, event.clientY);
+        }
+        setInterval(function () {
+            //清屏
+            ctx.clearRect(0, 0, mycanvas.width, mycanvas.height);
+            //渲染跟新所有小球
+            for (var i = 0; i < ballsArr.length; i++) {
+                ballsArr[i].updata();
+                //因为update可能会删除这个小球（半径小于零），所以要验证这个小球是否存在
+                ballsArr[i] && ballsArr[i].render();
+            }
+        }, 20);
+
+    </script>
+</body>
+
+</html>
